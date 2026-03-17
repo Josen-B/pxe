@@ -39,7 +39,7 @@ Hello, world!
 ```
 /code/pxe/
 ├── README.md                 # 本文件
-├── doc/
+├── docs/
 │   └── QUICK_START.md       # 快速上手指南
 ├── scripts/                  # 部署脚本
 │   ├── pxe-physical-deploy.sh

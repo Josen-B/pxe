@@ -52,7 +52,7 @@ sudo systemctl restart dnsmasq
 
 ```
 /code/pxe/
-├── doc/
+├── docs/
 │   └── QUICK_START.md       # 本文档
 ├── scripts/                  # 部署脚本
 │   ├── pxe-physical-deploy.sh
