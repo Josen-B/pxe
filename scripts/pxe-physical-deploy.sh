@@ -2,7 +2,7 @@
 #
 # ArceOS PXE 物理机部署脚本
 # 用途：在真实物理机上配置PXE环境，接入现有网络
-# 场景：服务器网卡 enOSp3s0，IP 192.168.1.229，物理开发板 IP 192.168.1.192
+# 场景：服务器网卡 enOSp3s0，IP 192.168.1.2，物理开发板 IP 192.168.1.4
 #
 
 set -e
@@ -46,7 +46,8 @@ AxVisor PXE 物理机部署脚本（接入现有网络模式）
     -h, --help         显示此帮助信息
     --status           显示PXE环境状态
     --interface NAME   指定网卡名称 (默认: enp3s0)
-    --server-ip IP     指定服务器IP (默认: 192.168.1.229)
+    --server-ip IP     指定服务器IP (默认: 192.168.1.2)
+    --client-ip IP     指定客户端IP (默认: 192.168.1.4，仅用于 GRUB 内嵌配置)
     --kernel FILE      指定内核文件路径 (默认: ../arceos-helloworld)
     --mode MODE        DHCP模式: proxy|exclusive|none (默认: proxy)
                        - proxy: DHCP代理模式（推荐，不干扰现有DHCP）
@@ -132,6 +133,11 @@ install_packages() {
     if ! command -v ip &> /dev/null; then
         log_info "安装 iproute2..."
         apt-get install -y iproute2
+    fi
+
+    if ! command -v grub-mkimage &> /dev/null; then
+        log_info "安装 grub EFI 工具..."
+        apt-get install -y grub-efi-amd64-bin
     fi
     
     log_success "软件包检查完成"
@@ -290,11 +296,37 @@ prepare_tftp_directory() {
         exit 1
     fi
     
+    # 生成带内嵌网络配置的 GRUB EFI 镜像
+    cat > /tmp/grub-embedded.cfg << EOF
+serial --unit=0 --speed=115200
+terminal_input console serial
+terminal_output console serial
+
+net_bootp
+set net_default_ip=${CLIENT_IP}
+set net_default_server=${SERVER_IP}
+
+multiboot (tftp,${SERVER_IP})/kernel
+boot
+EOF
+
+    grub-mkimage -o /var/lib/tftpboot/grubx64.efi -O x86_64-efi \
+        -p "" \
+        -c /tmp/grub-embedded.cfg \
+        normal tftp net boot multiboot multiboot2 \
+        efinet linux linux16 serial terminal \
+        echo cat ls test
+
+    rm -f /tmp/grub-embedded.cfg
+
     # 创建 iPXE 启动脚本
     cat > /var/lib/tftpboot/boot.ipxe << EOF
 #!ipxe
-kernel tftp://${SERVER_IP}/kernel console=ttyS0,115200n8
-boot
+echo ===================================
+echo   ArceOS Boot via GRUB
+echo ===================================
+echo Loading GRUB EFI bootloader...
+chain tftp://${SERVER_IP}/grubx64.efi
 EOF
     
     chmod -R 755 /var/lib/tftpboot
@@ -338,6 +370,7 @@ start_pxe_service() {
     log_info "配置摘要:"
     echo "  网卡接口: $INTERFACE"
     echo "  服务器IP: $SERVER_IP"
+    echo "  客户端IP: $CLIENT_IP"
     echo "  DHCP模式: $DHCP_MODE"
     echo "  内核文件: $KERNEL_FILE"
 }
@@ -405,7 +438,7 @@ show_status() {
     
     # 检查TFTP文件
     echo -e "\nTFTP 文件:"
-    for file in undionly.kpxe boot.ipxe kernel; do
+    for file in undionly.kpxe boot.ipxe grubx64.efi kernel; do
         if [ -f "/var/lib/tftpboot/$file" ]; then
             size=$(ls -lh "/var/lib/tftpboot/$file" | awk '{print $5}')
             echo -e "${GREEN}✓${NC} $file ($size)"
@@ -443,7 +476,8 @@ show_status() {
 main() {
     # 默认参数
     INTERFACE="enp3s0"
-    SERVER_IP="192.168.1.229"
+    SERVER_IP="192.168.1.2"
+    CLIENT_IP="192.168.1.4"
     KERNEL_FILE="../arceos-helloworld"
     DHCP_MODE="proxy"
     ACTION=""
@@ -477,6 +511,10 @@ main() {
                 ;;
             --server-ip)
                 SERVER_IP="$2"
+                shift 2
+                ;;
+            --client-ip)
+                CLIENT_IP="$2"
                 shift 2
                 ;;
             --kernel)

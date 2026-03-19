@@ -76,10 +76,10 @@ terminal_input console serial
 terminal_output console serial
 
 net_bootp  # 尝试 DHCP（会失败，但初始化网络设备）
-set net_default_ip=192.168.1.192
-set net_default_server=192.168.1.229
+set net_default_ip=192.168.1.4
+set net_default_server=192.168.1.2
 
-multiboot (tftp,192.168.1.229)/kernel
+multiboot (tftp,192.168.1.2)/kernel
 boot
 ```
 
@@ -115,7 +115,7 @@ sudo grub-mkimage -o grubx64.efi -O x86_64-efi \
 ```ipxe
 #!ipxe
 echo Loading GRUB EFI bootloader...
-chain tftp://192.168.1.229/grubx64.efi
+chain tftp://192.168.1.2/grubx64.efi
 ```
 
 ### 3. dnsmasq 配置要点
@@ -126,10 +126,10 @@ dhcp-match=set:efi-x86_64,option:client-arch,7
 dhcp-match=set:efi-x86_64,option:client-arch,9
 
 # UEFI 客户端使用 iPXE
-dhcp-boot=tag:!ipxe,tag:efi-x86_64,ipxe-mb.efi,,192.168.1.229
+dhcp-boot=tag:!ipxe,tag:efi-x86_64,ipxe-mb.efi,,192.168.1.2
 
 # iPXE 第二阶段加载 boot.ipxe
-dhcp-boot=tag:ipxe,boot.ipxe,,192.168.1.229
+dhcp-boot=tag:ipxe,boot.ipxe,,192.168.1.2
 ```
 
 ## 遇到的错误及解决
@@ -178,9 +178,9 @@ Hello, world!
 
 ```bash
 grub> net_bootp                    # 初始化网络
-grub> set net_default_ip=192.168.1.192
-grub> set net_default_server=192.168.1.229
-grub> multiboot (tftp,192.168.1.229)/kernel
+grub> set net_default_ip=192.168.1.4
+grub> set net_default_server=192.168.1.2
+grub> multiboot (tftp,192.168.1.2)/kernel
 grub> boot
 ```
 
@@ -198,7 +198,7 @@ file kernel  # 显示: data (multiboot 原始二进制)
 
 ```bash
 # 本地测试
-tftp 192.168.1.229 -c get kernel /tmp/test_kernel
+tftp 192.168.1.2 -c get kernel /tmp/test_kernel
 
 # 监控 TFTP 日志
 sudo tail -f /var/log/syslog | grep tftp

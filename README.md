@@ -5,7 +5,7 @@
 ## 环境要求
 
 - **服务器**: Ubuntu 22.04+
-- **网卡**: `enp3s0`，IP `192.168.1.229`
+- **网卡**: `enp3s0`，IP `192.168.1.2`
 - **开发板**: x86_64 UEFI 模式，支持网络启动 (PXE)
 - **网络**: 网线直连服务器，或同一局域网
 
@@ -147,11 +147,11 @@ terminal_output console serial
 
 # 初始化网络
 net_bootp
-set net_default_ip=192.168.1.192
-set net_default_server=192.168.1.229
+set net_default_ip=192.168.1.4
+set net_default_server=192.168.1.2
 
 # 加载内核
-multiboot (tftp,192.168.1.229)/kernel
+multiboot (tftp,192.168.1.2)/kernel
 boot
 ```
 
@@ -162,10 +162,10 @@ boot
 dhcp-range=192.168.1.100,192.168.1.200,255.255.255.0,12h
 
 # UEFI 启动文件
-dhcp-boot=tag:efi-x86_64,ipxe-mb.efi,,192.168.1.229
+dhcp-boot=tag:efi-x86_64,ipxe-mb.efi,,192.168.1.2
 
 # iPXE 第二阶段
-dhcp-boot=tag:ipxe,boot.ipxe,,192.168.1.229
+dhcp-boot=tag:ipxe,boot.ipxe,,192.168.1.2
 
 # TFTP 配置
 enable-tftp
@@ -250,7 +250,7 @@ System will reboot, press any key to continue ...
 **解决**:
 1. 检查防火墙: `sudo ufw disable`
 2. 检查文件权限: `ls -la /var/lib/tftpboot/`
-3. 测试 TFTP: `tftp 192.168.1.229 -c get kernel /tmp/test`
+3. 测试 TFTP: `tftp 192.168.1.2 -c get kernel /tmp/test`
 
 ### 内核格式错误
 
@@ -267,7 +267,7 @@ System will reboot, press any key to continue ...
 **解决**: GRUB 配置已内嵌到 grubx64.efi，如果仍进入命令行，手动执行：
 ```bash
 grub> net_bootp
-grub> multiboot (tftp,192.168.1.229)/kernel
+grub> multiboot (tftp,192.168.1.2)/kernel
 grub> boot
 ```
 
@@ -291,7 +291,7 @@ GRUB `multiboot` 命令可以正确识别和加载此类内核。
 
 开发板 MAC 地址: `88:88:88:88:87:88`
 
-静态 IP: `192.168.1.192`
+静态 IP: `192.168.1.4`
 
 GRUB 配置中使用静态 IP 避免 DHCP 失败。
 
