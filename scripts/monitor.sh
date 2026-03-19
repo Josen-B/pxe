@@ -17,4 +17,4 @@ echo ""
 sudo journalctl --vacuum-time=1s > /dev/null 2>&1
 
 # 实时监控dnsmasq日志
-sudo journalctl -u dnsmasq -f --no-pager | grep --line-buffered -E "(DHCP|TFTP|bootfile|sent size|88:88:88:88:87:88)" --color=always
+sudo journalctl -u dnsmasq -f --no-pager

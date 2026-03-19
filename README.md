@@ -5,7 +5,7 @@
 ## 环境要求
 
 - **服务器**: Ubuntu 22.04+
-- **网卡**: `enp3s0`，IP `192.168.1.2`
+- **网卡**: `eno1np0`，IP `192.168.1.2`
 - **开发板**: x86_64 UEFI 模式，支持网络启动 (PXE)
 - **网络**: 网线直连服务器，或同一局域网
 
@@ -42,9 +42,9 @@ Hello, world!
 ├── docs/
 │   └── QUICK_START.md       # 快速上手指南
 ├── scripts/                  # 部署脚本
-│   ├── pxe-physical-deploy.sh
+│   ├── pxe-deploy.sh
 │   ├── switch-mode.sh
-│   └── monitor-pxe-tftp.sh
+│   └── monitor.sh
 └── tftpboot/                 # 启动文件备份
     ├── ipxe-mb.efi          # iPXE 引导程序 (1.2M)
     ├── grubx64.efi          # GRUB EFI 镜像 (704K)
@@ -67,7 +67,7 @@ sudo apt-get install -y dnsmasq grub-efi-amd64-bin
 
 ```bash
 cd /code/pxe/scripts
-sudo ./pxe-physical-deploy.sh --install --mode direct
+sudo ./pxe-deploy.sh --install
 ```
 
 部署脚本将自动：
@@ -79,7 +79,7 @@ sudo ./pxe-physical-deploy.sh --install --mode direct
 ### 3. 验证部署
 
 ```bash
-sudo ./pxe-physical-deploy.sh --status
+sudo ./pxe-deploy.sh --status
 ```
 
 应显示：
@@ -318,10 +318,10 @@ sudo cp target/x86_64/release/arceos-helloworld /var/lib/tftpboot/kernel
 
 ```bash
 # 部署
-sudo ./pxe-physical-deploy.sh --install --mode direct
+sudo ./pxe-deploy.sh --install
 
 # 状态
-sudo ./pxe-physical-deploy.sh --status
+sudo ./pxe-deploy.sh --status
 
 # 切换模式
 sudo ./switch-mode.sh direct
@@ -329,7 +329,7 @@ sudo ./switch-mode.sh proxy
 sudo ./switch-mode.sh status
 
 # 监控
-sudo ./monitor-pxe-tftp.sh
+sudo ./monitor.sh
 
 # 重启服务
 sudo systemctl restart dnsmasq

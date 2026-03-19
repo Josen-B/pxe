@@ -2,9 +2,8 @@
 
 ## 环境要求
 
-- 服务器：Ubuntu 22.04+，网卡 `enp3s0`，IP `192.168.1.2`
+- 服务器：Ubuntu 22.04+，网卡 `eno1np0`，IP `192.168.1.2`
 - 开发板：x86_64 UEFI 模式，支持网络启动
-- 连接：网线直连或同一局域网
 
 ## 快速开始（3步）
 
@@ -12,7 +11,7 @@
 
 ```bash
 cd /code/pxe/scripts
-sudo ./pxe-physical-deploy.sh --install --mode direct
+sudo ./pxe-deploy.sh --install
 ```
 
 ### 2. 开发板设置
@@ -32,7 +31,7 @@ sudo ./pxe-physical-deploy.sh --install --mode direct
 
 ```bash
 # 查看服务状态
-sudo ./pxe-physical-deploy.sh --status
+sudo ./pxe-deploy.sh --status
 
 # 切换模式（直连/代理）
 sudo ./switch-mode.sh direct      # 直连模式
@@ -40,7 +39,7 @@ sudo ./switch-mode.sh proxy       # 代理模式
 sudo ./switch-mode.sh status      # 查看当前模式
 
 # 监控传输
-sudo ./monitor-pxe-tftp.sh
+sudo ./monitor.sh
 
 # 重启服务
 sudo systemctl restart dnsmasq
@@ -55,9 +54,9 @@ sudo systemctl restart dnsmasq
 ├── docs/
 │   └── QUICK_START.md       # 本文档
 ├── scripts/                  # 部署脚本
-│   ├── pxe-physical-deploy.sh
+│   ├── pxe-deploy.sh
 │   ├── switch-mode.sh
-│   └── monitor-pxe-tftp.sh
+│   └── monitor.sh
 └── tftpboot/                 # 启动文件备份
     ├── ipxe-mb.efi          # iPXE 引导程序 (1.2M)
     ├── grubx64.efi          # GRUB EFI 镜像 (704K)
