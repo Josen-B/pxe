@@ -69,7 +69,7 @@ sudo systemctl restart dnsmasq
 部署后，启动文件会被复制到：
 
 ```
-/home/runner/test/x86_64-pc/
+/home/root/test/x86_64-pc/
 ├── ipxe-mb.efi      # iPXE 引导程序
 ├── grubx64.efi      # GRUB EFI 引导程序
 ├── boot.ipxe        # iPXE 启动脚本

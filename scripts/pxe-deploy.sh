@@ -201,16 +201,16 @@ prepare_tftp_directory() {
     log_info "准备 TFTP 目录..."
     
     # 创建TFTP根目录
-    mkdir -p /home/runner/test/x86_64-pc
-    chmod -R 777 /home/runner/test/x86_64-pc
+    mkdir -p /home/root/test/x86_64-pc
+    chmod -R 777 /home/root/test/x86_64-pc
 
-    cp ../tftpboot/ipxe-mb.efi /home/runner/test/x86_64-pc/
+    cp ../tftpboot/ipxe-mb.efi /home/root/test/x86_64-pc/
     cp ../tftpboot/pxe-physical.conf /etc/dnsmasq.d/
     
     # 复制内核文件
     if [ -f "$KERNEL_FILE" ]; then
         log_info "复制内核文件: $KERNEL_FILE"
-        cp -f "$KERNEL_FILE" /home/runner/test/x86_64-pc/kernel
+        cp -f "$KERNEL_FILE" /home/root/test/x86_64-pc/kernel
     else
         log_error "内核文件不存在: $KERNEL_FILE"
         log_info "请确保内核文件存在，或使用 --kernel 参数指定路径"
@@ -231,7 +231,7 @@ multiboot (tftp,${SERVER_IP})/kernel
 boot
 EOF
 
-    grub-mkimage -o /home/runner/test/x86_64-pc/grubx64.efi -O x86_64-efi \
+    grub-mkimage -o /home/root/test/x86_64-pc/grubx64.efi -O x86_64-efi \
         -p "" \
         -c /tmp/grub-embedded.cfg \
         normal tftp net boot multiboot multiboot2 \
@@ -241,7 +241,7 @@ EOF
     rm -f /tmp/grub-embedded.cfg
 
     # 创建 iPXE 启动脚本
-    cat > /home/runner/test/x86_64-pc/boot.ipxe << EOF
+    cat > /home/root/test/x86_64-pc/boot.ipxe << EOF
 #!ipxe
 echo ===================================
 echo   ArceOS Boot via GRUB
@@ -250,13 +250,13 @@ echo Loading GRUB EFI bootloader...
 chain tftp://${SERVER_IP}/grubx64.efi
 EOF
     
-    chmod -R 755 /home/runner/test/x86_64-pc
+    chmod -R 755 /home/root/test/x86_64-pc
     
     log_success "TFTP 目录准备完成"
     
     # 显示文件列表
     log_info "TFTP 文件列表:"
-    ls -lh /home/runner/test/x86_64-pc/
+    ls -lh /home/root/test/x86_64-pc/
 }
 
 # 启动PXE服务
@@ -315,10 +315,10 @@ clean_environment() {
     rm -f /etc/dnsmasq.d/pxe-physical.conf
     
     # 询问是否删除TFTP文件
-    read -p "是否删除 TFTP 目录 (/home/runner/test/x86_64-pc)? [y/N]: " -n 1 -r
+    read -p "是否删除 TFTP 目录 (/home/root/test/x86_64-pc)? [y/N]: " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm -rf /home/runner/test/x86_64-pc
+        rm -rf /home/root/test/x86_64-pc
         log_info "TFTP 目录已删除"
     else
         log_info "保留 TFTP 目录"
@@ -360,8 +360,8 @@ show_status() {
     # 检查TFTP文件
     echo -e "\nTFTP 文件:"
     for file in ipxe.efi boot.ipxe grubx64.efi kernel; do
-        if [ -f "/home/runner/test/x86_64-pc/$file" ]; then
-            size=$(ls -lh "/home/runner/test/x86_64-pc/$file" | awk '{print $5}')
+        if [ -f "/home/root/test/x86_64-pc/$file" ]; then
+            size=$(ls -lh "/home/root/test/x86_64-pc/$file" | awk '{print $5}')
             echo -e "${GREEN}✓${NC} $file ($size)"
         else
             echo -e "${RED}✗${NC} $file (缺失)"
