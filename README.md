@@ -30,9 +30,9 @@ Hello, world!
 | 组件 | 功能 | 文件位置 |
 |------|------|----------|
 | dnsmasq | DHCP + TFTP 服务 | 系统服务 |
-| iPXE | 网络引导程序 | `/var/lib/tftpboot/ipxe-mb.efi` |
-| GRUB | 内核加载器 | `/var/lib/tftpboot/grubx64.efi` |
-| ArceOS | 目标内核 | `/var/lib/tftpboot/kernel` |
+| iPXE | 网络引导程序 | `/home/runner/test/x86_64-pc/ipxe-mb.efi` |
+| GRUB | 内核加载器 | `/home/runner/test/x86_64-pc/grubx64.efi` |
+| ArceOS | 目标内核 | `/home/runner/test/x86_64-pc/kernel` |
 
 ### 项目目录结构
 
@@ -52,7 +52,7 @@ Hello, world!
     └── kernel               # ArceOS 内核 (77K)
 ```
 
-**注意**: `tftpboot/` 目录是启动文件的备份，实际运行时会复制到 `/var/lib/tftpboot/`。
+**注意**: `tftpboot/` 目录是启动文件的备份，实际运行时会复制到 `/home/runner/test/x86_64-pc/`。
 
 ## 部署步骤
 
@@ -72,7 +72,7 @@ sudo ./pxe-deploy.sh --install
 
 部署脚本将自动：
 - 配置 dnsmasq DHCP/TFTP
-- 复制启动文件到 `/var/lib/tftpboot/`
+- 复制启动文件到 `/home/runner/test/x86_64-pc/`
 - 生成 GRUB EFI 镜像（内嵌配置）
 - 启动 dnsmasq 服务
 
@@ -85,7 +85,7 @@ sudo ./pxe-deploy.sh --status
 应显示：
 ```
 ✅ dnsmasq: running
-✅ TFTP root: /var/lib/tftpboot/
+✅ TFTP root: /home/runner/test/x86_64-pc/
 ✅ boot.ipxe: exists
 ✅ grubx64.efi: exists
 ✅ kernel: exists
@@ -169,7 +169,7 @@ dhcp-boot=tag:ipxe,boot.ipxe,,192.168.1.2
 
 # TFTP 配置
 enable-tftp
-tftp-root=/var/lib/tftpboot
+tftp-root=/home/runner/test/x86_64-pc
 ```
 
 ## 启动效果
@@ -249,7 +249,7 @@ System will reboot, press any key to continue ...
 
 **解决**:
 1. 检查防火墙: `sudo ufw disable`
-2. 检查文件权限: `ls -la /var/lib/tftpboot/`
+2. 检查文件权限: `ls -la /home/runner/test/x86_64-pc/`
 3. 测试 TFTP: `tftp 192.168.1.2 -c get kernel /tmp/test`
 
 ### 内核格式错误
@@ -303,7 +303,7 @@ cd /path/to/arceos
 make ARCH=x86_64
 
 # 复制到 TFTP 目录
-sudo cp target/x86_64/release/arceos-helloworld /var/lib/tftpboot/kernel
+sudo cp target/x86_64/release/arceos-helloworld /home/runner/test/x86_64-pc/kernel
 
 # 无需重启服务，直接测试
 ```
